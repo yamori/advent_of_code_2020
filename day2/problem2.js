@@ -8,9 +8,10 @@ function evaluatePwdDataLine(rawLine) {
     var index2 = parseInt(index_tokens[1])-1;
 
     var restrictedChar = tokens[1].replace(":","");
+    var pwd = tokens[2];
 
-    return(Boolean(tokens[2][index1].localeCompare(restrictedChar)==0) ^ 
-        (Boolean(tokens[2][index2].localeCompare(restrictedChar))==0));
+    return(Boolean(pwd[index1].localeCompare(restrictedChar)==0) ^ 
+        (Boolean(pwd[index2].localeCompare(restrictedChar))==0));
 }
 
 var validCount = 0;

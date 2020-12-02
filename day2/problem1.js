@@ -8,7 +8,8 @@ function evaluatePwdDataLine(rawLine) {
     var upperBound = parseInt(bounds_tokens[1]);
 
     var restrictedChar = tokens[1].replace(":","");
-    var charOccurences = (tokens[2].match(new RegExp(restrictedChar, "g")) || []).length;
+    var pwd = tokens[2];
+    var charOccurences = (pwd.match(new RegExp(restrictedChar, "g")) || []).length;
 
     return(lowerBound <= charOccurences && charOccurences <= upperBound);
 }
