@@ -11,6 +11,7 @@ function countTreesForTraversal(treeMapArray) {
     var mapWidth = treeMapArray[0].length;
     var x_pos = 0;
     var treeEncounterCount = 0;
+    // ... let's ski
     for (var y_pos = 1; y_pos < treeMapArray.length;  y_pos++ ) {
         x_pos+=3;
         if (treeMapArray[y_pos][x_pos % mapWidth] == "#") { treeEncounterCount++; }
@@ -20,3 +21,5 @@ function countTreesForTraversal(treeMapArray) {
 
 var treeMapArray = ingestTreeMap();
 countTreesForTraversal(treeMapArray);
+
+// node problem2.js
