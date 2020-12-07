@@ -44,6 +44,7 @@ function recursiveTraverseForShinyGoldBag(current_bag, current_path = [], found_
 
 buildBagRuleTree();
 
+// Testing...
 // recursiveTraverseForShinyGoldBag("dark cyan bag", ["dark cyan bag"]); // immediate to shiny gold
 // recursiveTraverseForShinyGoldBag("dull red bag", ["dull red bag"]); // one degree away
 // recursiveTraverseForShinyGoldBag("dim red bag", ["dim red bag"]); // never reaches shiny gold
@@ -52,5 +53,6 @@ buildBagRuleTree();
 for (var beginning_bag in rule_tree) {
     recursiveTraverseForShinyGoldBag(beginning_bag, [beginning_bag]);
 }
-
 console.log(`Bags Eventaully Containing shiny gold: ${Object.entries(bags_eventually_to_shiny_gold).length}`);
+
+// node problem1.js

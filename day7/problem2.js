@@ -34,5 +34,7 @@ function recursiveCountFromBag(current_bag, path_count) {
 }
 
 buildBagRuleTree();
-recursiveCountFromBag("shiny gold bag", 1); // immediate to shiny gold
+recursiveCountFromBag("shiny gold bag", 1); // search only from node 'shiny gold'
 console.log(`Total Bags under Shiny Gold: ${totalBagsUnderParentBag}`);
+
+// node problem2.js
