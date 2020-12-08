@@ -1,7 +1,6 @@
 var fs = require('fs');
 
 var instruction_set = [];
-
 function ingestInstructionSet() {
     var file_array = fs.readFileSync('instruction_set.txt').toString().split("\n");
     for (instruciton of file_array) { instruction_set.push(instruciton.split(" "));}
