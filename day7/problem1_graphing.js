@@ -1,7 +1,11 @@
 var fs = require('fs');
 
+// This copy of problem 1 outputs a graphviz.txt file, meant for neato/dot/graphviz
+
 var rule_tree = {};
 function buildBagRuleTree() {
+    var graphviz_lines = [];
+
     var file_array = fs.readFileSync('bag_rules.txt').toString().split("\n");
     for (rule of file_array) {
         rule = rule.replace(/bags/g,"bag").replace(".","");
@@ -18,9 +22,15 @@ function buildBagRuleTree() {
             var number_of_bags = parseInt(relation_tokens.shift());
             var bag_reference = relation_tokens.join(" ");
             //console.log(`${number_of_bags} ${bag_reference}`);
+            //console.log(`"${bag_node.replace(" bag","")}"->"${bag_reference.replace(" bag","")}" [taillabel = "${number_of_bags}", color="azure3"];`);
+            graphviz_lines.push(`"${bag_node.replace(" bag","")}"->"${bag_reference.replace(" bag","")}" [taillabel = "${number_of_bags}", color="azure3"];`);
             rule_tree[bag_node].push({'number_of_bags':number_of_bags, 'bag_reference':bag_reference});
         }
     }
+    fs.appendFile('graphviz.txt', `digraph G {\n${graphviz_lines.join("\n")}\n}`, (err) => {
+        if (err) throw err;
+        console.log('The "data to append" was appended to file!');
+      });
 }
 
 var bags_eventually_to_shiny_gold = {};
@@ -43,19 +53,4 @@ function recursiveTraverseForShinyGoldBag(current_bag, current_path = [], found_
 
 buildBagRuleTree();
 
-// Testing...
-// recursiveTraverseForShinyGoldBag("dark cyan bag", ["dark cyan bag"]); // immediate to shiny gold
-// recursiveTraverseForShinyGoldBag("dull red bag", ["dull red bag"]); // one degree away
-// recursiveTraverseForShinyGoldBag("dim red bag", ["dim red bag"]); // never reaches shiny gold
-
-// Every bag can be the root node...
-for (var beginning_bag in rule_tree) {
-    recursiveTraverseForShinyGoldBag(beginning_bag, [beginning_bag]);
-}
-console.log(`Bags Eventaully Containing shiny gold: ${Object.entries(bags_eventually_to_shiny_gold).length}`);
-
-// node problem1.js
-
-// sfdp -x -Goverlap=scale -Tpng input.gv > out.png
-// neato -Tps input.gv -o output2.ps
-// dot -Tps input.gv -o output3.ps
+// node problem1_graphing.js
