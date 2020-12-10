@@ -59,3 +59,5 @@ console.log(`Bags Eventaully Containing shiny gold: ${Object.entries(bags_eventu
 // sfdp -x -Goverlap=scale -Tpng input.gv > out.png
 // neato -Tps input.gv -o output2.ps
 // dot -Tps input.gv -o output3.ps
+// dot -Tps input.gv -o output5.png
+// dot -Tpng -Gsize=9,15\! -Gdpi=100 -o output6.png input.gv
