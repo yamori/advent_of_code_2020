@@ -23,14 +23,12 @@ function stringifySeatMap() {
 
 function detectFirstSeenSeatPerDirection(row_sign, col_sign, row_seat, col_seat) {
     var seeing_distance = 1;
-    while (true) { //learning on these while-trues too much, but blah
+    while (true) { //leaning on these while-trues too much, but blah
         var row_pointer = row_seat + row_sign*seeing_distance;
         var col_pointer = col_seat + col_sign*seeing_distance;
         if (row_pointer>=ROWS || col_pointer>=COLS || row_pointer<0 || col_pointer<0) {break;} 
-
         if (seating_array_copy[row_pointer][col_pointer]=="#") { return "#"; }
         if (seating_array_copy[row_pointer][col_pointer]=="L") { return "L"; }
-
         seeing_distance++;
     }
     return "."; // default
@@ -44,7 +42,6 @@ function iterateSeatMap() {
             if (seating_array_copy[r][c]=='.') { continue; }
 
             var adjacent_filled_seats = 0;
-            //left
             if (detectFirstSeenSeatPerDirection(0, -1, r, c)=="#")  { adjacent_filled_seats++; }    //left
             if (detectFirstSeenSeatPerDirection(0, 1, r, c)=="#")  { adjacent_filled_seats++; }     //right
             if (detectFirstSeenSeatPerDirection(1, 0, r, c)=="#")  { adjacent_filled_seats++; }     //down
@@ -79,3 +76,5 @@ while (true) {
     if (previousMap==nextMap) { console.log(`Number of Occpied Seats: ${nextMap.split("#").length-1}`); break; }
 }
 console.log(`loops: ${counter}`);
+
+// node problem2.js
