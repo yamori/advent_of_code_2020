@@ -76,6 +76,6 @@ while (true) {
     var nextMap = stringifySeatMap();
     // printSeatMap();
     counter++;
-    if (previousMap==nextMap) { console.log(nextMap.split("#").length-1); break; }
+    if (previousMap==nextMap) { console.log(`Number of Occpied Seats: ${nextMap.split("#").length-1}`); break; }
 }
 console.log(`loops: ${counter}`);
