@@ -23,12 +23,7 @@ function findFinalCoordinate() {
         if (nav_instruction[0]=="E") { ship_position.x += nav_instruction[1]; }
         if (nav_instruction[0]=="W") { ship_position.x -= nav_instruction[1]; }
         if (nav_instruction[0]=="R") { 
-            // console.log((heading_index + nav_instruction[1]/90));
-            // console.log(heading_map.length-1);
-            // console.log((heading_index + nav_instruction[1]/90) % (heading_map.length-1));
-            
             heading_index = (heading_index + nav_instruction[1]/90 + 4) % (heading_map.length); 
-            // heading_index += nav_instruction[1]/90;
             console.log(`R ${nav_instruction[1]} ${nav_instruction[1]/90} ${heading_index}`);
         }
         if (nav_instruction[0]=="L") { 
@@ -41,9 +36,7 @@ function findFinalCoordinate() {
 // ingestNavInstructions("example.txt");
 ingestNavInstructions("real_input.txt");
 console.log(JSON.stringify(nav_instructions_array));
-
 findFinalCoordinate();
-
 console.log(JSON.stringify(ship_position));
 
-//4519, no guidance
+// node problem1.js
