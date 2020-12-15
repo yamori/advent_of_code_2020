@@ -27,6 +27,11 @@ function executeSequenceToTurn(last_turn) {
     var next_number = 6;
     last_turn = 30000000;
 
+    // 0,6,1,7,2,19,20
+    var previous_seen = {0:7,6:6,1:5,7:4,2:3,19:1}; //object to keep track of previous references
+    var next_number = 20;
+    last_turn = 30000000;
+
     for (var n=Object.keys(previous_seen).length+1; n<last_turn; n++) {
         if (!(next_number in previous_seen)) {
             previous_seen[next_number] = 0;
