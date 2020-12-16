@@ -14,7 +14,7 @@ function ingestRules(filename) {
         ];
         rules_set[rule_name] = rule_bounds;
     }
-    console.log(JSON.stringify(rules_set));
+    console.log("rules_bounds-->   " + JSON.stringify(rules_set) + "\n");
 }
 
 var nearby_tix_set = [];
@@ -42,14 +42,11 @@ function extractValidTix() {
         }
         valid_tix_set.push(nearby_ticket);
     }
-    console.log(`valid_tix_set.length:${valid_tix_set.length}`);
-    console.log(`nearby_tix_set.length:${nearby_tix_set.length}`);
-    // console.log(`valid_tix_set:${JSON.stringify(valid_tix_set)}`);
+    console.log(`valid_tix_set.length: ${valid_tix_set.length} \n`);
 }
 
 var field_valid_indices = {};
 function determineValidIndicesForFields() {
-    var combinations = 1;
     for (ruleName of Object.keys(rules_set)) {
         var valid_indices_for_rule = [];
         index_loop:
@@ -57,7 +54,6 @@ function determineValidIndicesForFields() {
             for (valid_tik of valid_tix_set) {
                 if ((rules_set[ruleName][0][0] <= valid_tik[n] && valid_tik[n] <= rules_set[ruleName][0][1]) || 
                 (rules_set[ruleName][1][0] <= valid_tik[n] && valid_tik[n] <= rules_set[ruleName][1][1]) ) {
-
                 } else {
                     continue index_loop;
                 }
@@ -65,10 +61,28 @@ function determineValidIndicesForFields() {
             valid_indices_for_rule.push(n);
         }
         field_valid_indices[ruleName] = valid_indices_for_rule;
-        combinations *= valid_indices_for_rule.length;
     }
-    console.log(`field_valid_indices:${JSON.stringify(field_valid_indices)}`);
-    console.log(combinations); //2 432 902 008 176 640 000
+    console.log(`field_valid_indices:${JSON.stringify(field_valid_indices)} \n`);
+}
+
+function findSingleKey(obj) {
+    for (key of Object.keys(obj)) {
+        if (obj[key].length==1) {return key;}
+    }
+    return -1;
+}
+function distillValidIndices() {
+    var determined_field = findSingleKey(field_valid_indices);
+    while (determined_field != -1) {
+        var position_to_remove = field_valid_indices[determined_field][0];
+        console.log(`${determined_field} is index ${position_to_remove}`);
+        delete field_valid_indices[determined_field];
+        for (key of Object.keys(field_valid_indices)) {
+            var index = field_valid_indices[key].indexOf(position_to_remove);
+            if (index>-1) {field_valid_indices[key].splice(index,1);}
+        }
+        determined_field = findSingleKey(field_valid_indices);
+    }
 }
 
 // var filename = "example2_input.txt";
@@ -77,3 +91,4 @@ ingestRules(filename);
 ingestNearbyTix(filename);
 extractValidTix();
 determineValidIndicesForFields();
+distillValidIndices();
