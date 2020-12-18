@@ -36,21 +36,17 @@ function ingestInitState(filename) {
 function evaluateRules(pocket,oX,oY,oZ,oW) {
     var pocket_size = pocket.length;
     var active_counter = 0;
-    for (w of [oW-1,oW,oW+1]) {
-    for (z of [oZ-1,oZ,oZ+1]) {
-        for (y of [oY-1,oY,oY+1]) {
-            for (x of [oX-1,oX,oX+1]) {
-                if (x==oX & y==oY & z==oZ & w==oW) {continue;} // ignore own cell
-                if (x<0 | y<0 | z<0 | w<0 | x>=pocket_size | y>=pocket_size | z>=pocket_size | w>=pocket_size) { continue; }
-                if (pocket[w][z][y][x]=="#") {active_counter++;}
-            }
-        }
-    }}
+    for (w of [oW-1,oW,oW+1]) { for (z of [oZ-1,oZ,oZ+1]) { for (y of [oY-1,oY,oY+1]) { for (x of [oX-1,oX,oX+1]) {
+        if (x==oX & y==oY & z==oZ & w==oW) {continue;} // ignore own cell
+        if (x<0 | y<0 | z<0 | w<0 | x>=pocket_size | y>=pocket_size | z>=pocket_size | w>=pocket_size) { continue; }
+        if (pocket[w][z][y][x]=="#") {active_counter++;}
+    }}}}
     // evaluate
     var char_to_compare = "";
     if ( oX<0 | oY<0 | oZ<0 | oW<0 | oX>=pocket_size | oY>=pocket_size | oZ>=pocket_size  | oW>=pocket_size) {
         char_to_compare = ".";
     } else { char_to_compare = pocket[oW][oZ][oY][oX]; }
+
     if (char_to_compare=="#" && (active_counter==2 | active_counter==3)) { return "#"; }
     if (char_to_compare=="." && active_counter==3) { return "#"; }
     return ".";
@@ -67,15 +63,15 @@ function iteratePocket(current_pocket) {
 }
 
 // not updated for 4D
-function printPocket(pocket) {
-    var N = pocket.length;
-    for (z=0; z<N; z++) { 
-        for (y=0; y<N; y++) { 
-            console.log(pocket[z][y]);
-        }
-        console.log("\n");
-    }
-}
+// function printPocket(pocket) {
+//     var N = pocket.length;
+//     for (z=0; z<N; z++) { 
+//         for (y=0; y<N; y++) { 
+//             console.log(pocket[z][y]);
+//         }
+//         console.log("\n");
+//     }
+// }
 
 function countActives(pocket) {
     var count = 0;

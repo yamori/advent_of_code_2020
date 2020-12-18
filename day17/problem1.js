@@ -21,31 +21,26 @@ function ingestInitState(filename) {
     var N = input_chunks[0].length;
     var init_pocket = initEmptyPocket(N);
     var z = Math.floor(N/2);
-    for (y=0; y<N; y++) {
-        for (x=0; x<N; x++) {
-            init_pocket[z][y] = setCharAt(init_pocket[z][y],x,input_chunks[y][x]);
-        }
-    }
+    for (y=0; y<N; y++) { for (x=0; x<N; x++) {
+        init_pocket[z][y] = setCharAt(init_pocket[z][y],x,input_chunks[y][x]);
+    }}
     return init_pocket;
 }
 
 function evaluateRules(pocket,oX,oY,oZ) {
     var pocket_size = pocket.length;
     var active_counter = 0;
-    for (z of [oZ-1,oZ,oZ+1]) {
-        for (y of [oY-1,oY,oY+1]) {
-            for (x of [oX-1,oX,oX+1]) {
-                if (x==oX & y==oY & z==oZ) {continue;} // ignore own cell
-                if (x<0 | y<0 | z<0 | x>=pocket_size | y>=pocket_size | z>=pocket_size) { continue; }
-                if (pocket[z][y][x]=="#") {active_counter++;}
-            }
-        }
-    }
+    for (z of [oZ-1,oZ,oZ+1]) { for (y of [oY-1,oY,oY+1]) { for (x of [oX-1,oX,oX+1]) {
+        if (x==oX & y==oY & z==oZ) {continue;} // ignore own cell
+        if (x<0 | y<0 | z<0 | x>=pocket_size | y>=pocket_size | z>=pocket_size) { continue; }
+        if (pocket[z][y][x]=="#") {active_counter++;}
+    }}}
     // evaluate
     var char_to_compare = "";
     if ( oX<0 | oY<0 | oZ<0 | oX>=pocket_size | oY>=pocket_size | oZ>=pocket_size) {
         char_to_compare = ".";
     } else { char_to_compare = pocket[oZ][oY][oX]; }
+    
     if (char_to_compare=="#" && (active_counter==2 | active_counter==3)) { return "#"; }
     if (char_to_compare=="." && active_counter==3) { return "#"; }
     return ".";
