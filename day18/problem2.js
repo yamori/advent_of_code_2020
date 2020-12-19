@@ -17,34 +17,39 @@ function createDepthMap(line) {
     return line_depth_arr;
 }
 
-function evaluateLeftToRightOps(line) {
-    // naive evaluation L to R, returns int
+function evaluateAddThenMultiplyOps(line) {
     line_tokens = line.split("+").join(" + ").split("*").join(" * ").split(" ");
-    var value = parseInt(line_tokens[0]);
-    for (var n=1; n<line_tokens.length; n++) {
-        if (line_tokens[n]=="*") { value *= parseInt(line_tokens[n+1]); }
-        else { value += parseInt(line_tokens[n+1]); } n++;
+    var index_of_add = line_tokens.indexOf("+");
+    while (index_of_add>0) {
+        var new_val = parseInt(line_tokens[index_of_add-1]) + parseInt(line_tokens[index_of_add+1]);
+        line_tokens = [].concat(line_tokens.slice(0,index_of_add-1),String(new_val),line_tokens.slice(index_of_add+2,line_tokens.length));
+        index_of_add = line_tokens.indexOf("+"); continue;
     }
-    return value;
+    var index_of_multiply = line_tokens.indexOf("*");
+    while (index_of_multiply>0) {
+        var new_val = parseInt(line_tokens[index_of_multiply-1]) * parseInt(line_tokens[index_of_multiply+1]);
+        line_tokens = [].concat(line_tokens.slice(0,index_of_multiply-1),new_val,line_tokens.slice(index_of_multiply+2,line_tokens.length));
+        index_of_multiply = line_tokens.indexOf("*"); continue;
+    }
+    return new_val;
 }
 
 function evaluateLine(line) {
     var depth_arr = createDepthMap(line);
-
     while (Math.max(...depth_arr)>0) {
         console.log(` ${JSON.stringify(line)}`);
         console.log(`  ${depth_arr.join("")}`);
         var max_depth = Math.max(...depth_arr);
         var open_parens_index = depth_arr.findIndex(x => x==max_depth);
         var close_parens_index = line.indexOf(")",open_parens_index);
-        var value = evaluateLeftToRightOps(line.substring(open_parens_index+1,close_parens_index));
+        var value = evaluateAddThenMultiplyOps(line.substring(open_parens_index+1,close_parens_index));
         console.log(` ${line.substring(open_parens_index+1,close_parens_index)}`);
         console.log(` ${value}`);
 
         line = line.substring(0,open_parens_index) + value + line.substring(close_parens_index+1,line.length);
         depth_arr = createDepthMap(line);
     }
-    var final_value = evaluateLeftToRightOps(line); // line should have no parens by this point
+    var final_value = evaluateAddThenMultiplyOps(line); // line should have no parens by this point
     console.log(`line_value: ${final_value}`);
     return final_value;
 }
@@ -58,9 +63,7 @@ for (expression of expressions) {
 }
 console.log(`\nfinal sum: ${sum}`);
 
-
 // testing
-// evaluateLeftToRightOps("1+20*3+4*5+60"); //395
-// createDepthMap("5*9*(7*3*3+9*3+(8+6*4))");
-// evaluateLine("5*9*(7*3*3+9*3+(8+6*4))"); //12240
-// evaluateLine("((2+4*9)*(6+9*8+6)+6)+2+4*2"); //13632
+// console.log(evaluateAddThenMultiplyOps("2*3+20")); //46
+// console.log(evaluateLine("5*9*(7*3*3+9*3+(8+6*4))")); //669060
+// console.log(evaluateLine("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2".replace(/ /g,''))); //23340
