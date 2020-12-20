@@ -64,3 +64,5 @@ console.log(`\nfinal sum: ${sum}`);
 // createDepthMap("5*9*(7*3*3+9*3+(8+6*4))");
 // evaluateLine("5*9*(7*3*3+9*3+(8+6*4))"); //12240
 // evaluateLine("((2+4*9)*(6+9*8+6)+6)+2+4*2"); //13632
+
+// node problem1.js

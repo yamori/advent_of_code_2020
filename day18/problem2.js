@@ -67,3 +67,5 @@ console.log(`\nfinal sum: ${sum}`);
 // console.log(evaluateAddThenMultiplyOps("2*3+20")); //46
 // console.log(evaluateLine("5*9*(7*3*3+9*3+(8+6*4))")); //669060
 // console.log(evaluateLine("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2".replace(/ /g,''))); //23340
+
+// node problem2.js
