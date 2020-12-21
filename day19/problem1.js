@@ -86,8 +86,6 @@ fs.writeFile('all_combos.json', JSON.stringify(all_combos), function(err, result
     if(err) console.log('error', err);
 });
 
-readThenQualifyInputs("actual_inputs.txt",all_combos);
-
-// node problem1.js
+// node problem1.js  // yields 126
 // Takes 7+mins to run, all_combos is written to file for quicker matching but I not
 // implemeted yet is the load... 
