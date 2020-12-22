@@ -58,7 +58,7 @@ function findCorners() {
             var rev_edge = edge.split("").reverse().join("");
             if (rev_edge in EDGE_COUNTS) { edge_metric += EDGE_COUNTS[rev_edge]; continue; }
         }
-        if (edge_metric==6) {console.log(`box_number: ${key}`); corner_boxes.push(key);}
+        if (edge_metric==6) {console.log(`corner tile: ${key}`); corner_boxes.push(key);}
     }
     return corner_boxes;
 }
@@ -69,7 +69,7 @@ console.log(`RAW_TILES: ${Object.keys(RAW_TILES).length}`);
 
 countUniqueEdges();
 var corner_boxes = findCorners();
-console.log(corner_boxes.reduce( (a, b) => a * b ) );
+console.log(`product: ${corner_boxes.reduce( (a, b) => a * b )}`);
 
 // Thought process
 /**
