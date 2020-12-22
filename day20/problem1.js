@@ -25,9 +25,6 @@ function countUniqueEdges() {
             x++;
         }
         TILE_EDGES[key] = [top,bottom,left,right];
-        // console.log(JSON.stringify(RAW_TILES[key].map((x) => x.join(""))));
-        // console.log(`${top} ${bottom} ${left} ${right}`);
-
         for (edge of [top,bottom,left,right]) {
             if (edge in EDGE_COUNTS) { EDGE_COUNTS[edge]++; continue; } 
             var rev_edge = edge.split("").reverse().join("");
@@ -70,6 +67,8 @@ console.log(`RAW_TILES: ${Object.keys(RAW_TILES).length}`);
 countUniqueEdges();
 var corner_boxes = findCorners();
 console.log(`product: ${corner_boxes.reduce( (a, b) => a * b )}`);
+
+// node problem1.js
 
 // Thought process
 /**
