@@ -121,7 +121,24 @@ function placeCornerTiles() {
         TILE_EDGES[UL_tile_number] = transformTile(TILE_EDGES[UL_tile_number],transform_index);
     }
     console.log(transform_index); 
-    PLACEMENT_STRUCT["1x1"] = {tile_number: UL_tile_number, transform_index: transform_index};
+    PLACEMENT_STRUCT["1x1"] = {tile_number: UL_tile_number, transform_index: transform_index, tile_edges_oriented: TILE_EDGES[UL_tile_number]};
+
+
+    outer:
+    for (key of EDGE_TILES) { // Iterate over all EDGE_TILES
+        for (var transform_index = 1; transform_index<TRANSFORM_SEQ.length; transform_index++) { // iterate through the TRANSFORM_SEQ
+            if (TILE_EDGES[key][2]==PLACEMENT_STRUCT["1x1"].tile_edges_oriented[3]) {
+                // match is found: place into PLACEMENT_STRUCT and reove from EDGE_TILES
+                PLACEMENT_STRUCT["1x2"] = {tile_number: key, transform_index: transform_index, tile_edges_oriented: TILE_EDGES[key]};
+                EDGE_TILES.splice(EDGE_TILES.indexOf(key),1);
+                break outer;
+            }
+            TILE_EDGES[key] = transformTile(TILE_EDGES[key], transform_index);
+        }
+    }
+    // for (var n=2; n<=11; n++) {
+    //     // iterate over top row
+    // }
 
     // (for loop these two)
     // across, lay down 10 tiles from EDGE_TILES, append 1 from CORNER_TILES
