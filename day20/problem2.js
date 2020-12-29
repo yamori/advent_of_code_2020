@@ -112,7 +112,7 @@ function findEdgeCount(edge_string) {
 }
 
 var PLACEMENT_STRUCT = {}; // will contain tile number, and rotation operation
-function placeCornerTiles() {
+function placeCornerAndEdgeTiles() {
     // First corner tile, doesn't matter which one, but rotate to get in upper left
     var UL_tile_number = CORNER_TILES.shift();
     var transform_index = 0;
@@ -123,18 +123,96 @@ function placeCornerTiles() {
     PLACEMENT_STRUCT["1x1"] = {tile_number: UL_tile_number, transform_index: transform_index, tile_edges_oriented: TILE_EDGES[UL_tile_number]};
 
 
-    outer:
-    for (key of EDGE_TILES) { // Iterate over all EDGE_TILES
+    // from UL_tile_number (exclusive), right+down to corner (exclusive)
+    for (var n=2; n<12; n++) {
+        EDGE_TILES_loop:
+        for (key of EDGE_TILES) { // Iterate over all EDGE_TILES
+            for (var transform_index = 1; transform_index<TRANSFORM_SEQ.length; transform_index++) { // iterate through the TRANSFORM_SEQ
+                if (TILE_EDGES[key][2]==PLACEMENT_STRUCT[`1x${n-1}`].tile_edges_oriented[3]) {
+                    // match is found: place into PLACEMENT_STRUCT and remove from EDGE_TILES
+                    PLACEMENT_STRUCT[`1x${n}`] = {tile_number: key, transform_index: transform_index, tile_edges_oriented: TILE_EDGES[key]};
+                    EDGE_TILES.splice(EDGE_TILES.indexOf(key),1);
+                    break EDGE_TILES_loop;
+                }
+                TILE_EDGES[key] = transformTile(TILE_EDGES[key], transform_index);
+            }
+        }
+
+        EDGE_TILES_loop:
+        for (key of EDGE_TILES) { // Iterate over all EDGE_TILES
+            for (var transform_index = 1; transform_index<TRANSFORM_SEQ.length; transform_index++) { // iterate through the TRANSFORM_SEQ
+                if (TILE_EDGES[key][0]==PLACEMENT_STRUCT[`${n-1}x1`].tile_edges_oriented[1]) {
+                    // match is found: place into PLACEMENT_STRUCT and remove from EDGE_TILES
+                    PLACEMENT_STRUCT[`${n}x1`] = {tile_number: key, transform_index: transform_index, tile_edges_oriented: TILE_EDGES[key]};
+                    EDGE_TILES.splice(EDGE_TILES.indexOf(key),1);
+                    break EDGE_TILES_loop;
+                }
+                TILE_EDGES[key] = transformTile(TILE_EDGES[key], transform_index);
+            }
+        }
+    }
+
+    // Place UR corner tile
+    CORNER_TILES_loop:
+    for (key_CORNER_TILES of CORNER_TILES) { // Iterate over all CORNER_TILES
         for (var transform_index = 1; transform_index<TRANSFORM_SEQ.length; transform_index++) { // iterate through the TRANSFORM_SEQ
-            if (TILE_EDGES[key][2]==PLACEMENT_STRUCT["1x1"].tile_edges_oriented[3]) {
-                // match is found: place into PLACEMENT_STRUCT and reove from EDGE_TILES
-                PLACEMENT_STRUCT["1x2"] = {tile_number: key, transform_index: transform_index, tile_edges_oriented: TILE_EDGES[key]};
-                EDGE_TILES.splice(EDGE_TILES.indexOf(key),1);
-                break outer;
+            if ((findEdgeCount(TILE_EDGES[key_CORNER_TILES][0]) + findEdgeCount(TILE_EDGES[key_CORNER_TILES][3])) == 2) {
+                // match is found: place into PLACEMENT_STRUCT and remove from EDGE_TILES
+                PLACEMENT_STRUCT[`1x12`] = {tile_number: key_CORNER_TILES, transform_index: transform_index, tile_edges_oriented: TILE_EDGES[key_CORNER_TILES]};
+                CORNER_TILES.splice(CORNER_TILES.indexOf(key_CORNER_TILES),1);
+                break CORNER_TILES_loop;
             }
             TILE_EDGES[key] = transformTile(TILE_EDGES[key], transform_index);
         }
     }
+
+    // Place LL corner tile
+    CORNER_TILES_loop:
+    for (key_CORNER_TILES of CORNER_TILES) { // Iterate over all CORNER_TILES
+        for (var transform_index = 1; transform_index<TRANSFORM_SEQ.length; transform_index++) { // iterate through the TRANSFORM_SEQ
+            if ((findEdgeCount(TILE_EDGES[key_CORNER_TILES][1]) + findEdgeCount(TILE_EDGES[key_CORNER_TILES][2])) == 2) {
+                // match is found: place into PLACEMENT_STRUCT and remove from EDGE_TILES
+                PLACEMENT_STRUCT[`12x1`] = {tile_number: key_CORNER_TILES, transform_index: transform_index, tile_edges_oriented: TILE_EDGES[key_CORNER_TILES]};
+                CORNER_TILES.splice(CORNER_TILES.indexOf(key_CORNER_TILES),1);
+                break CORNER_TILES_loop;
+            }
+            TILE_EDGES[key] = transformTile(TILE_EDGES[key], transform_index);
+        }
+    }
+
+    // from LL and UR (exclusive), right+down to LR (exclusive)
+    for (var n=2; n<12; n++) {
+        // the UR and LL corners need to be transformed correctly, then unlock this.
+        // EDGE_TILES_loop:
+        // for (key of EDGE_TILES) { // Iterate over all EDGE_TILES
+        //     for (var transform_index = 1; transform_index<TRANSFORM_SEQ.length; transform_index++) { // iterate through the TRANSFORM_SEQ
+        //         console.log(`${n} ${transform_index}`);
+        //         if (TILE_EDGES[key][0]==PLACEMENT_STRUCT[`${n-1}x12`].tile_edges_oriented[1]) {
+        //             // match is found: place into PLACEMENT_STRUCT and remove from EDGE_TILES
+        //             console.log('match');
+        //             PLACEMENT_STRUCT[`${n}x12`] = {tile_number: key, transform_index: transform_index, tile_edges_oriented: TILE_EDGES[key]};
+        //             EDGE_TILES.splice(EDGE_TILES.indexOf(key),1);
+        //             break EDGE_TILES_loop;
+        //         }
+        //         TILE_EDGES[key] = transformTile(TILE_EDGES[key], transform_index);
+        //     }
+        // }
+
+        // EDGE_TILES_loop:
+        // for (key of EDGE_TILES) { // Iterate over all EDGE_TILES
+        //     for (var transform_index = 1; transform_index<TRANSFORM_SEQ.length; transform_index++) { // iterate through the TRANSFORM_SEQ
+        //         if (TILE_EDGES[key][0]==PLACEMENT_STRUCT[`${n-1}x1`].tile_edges_oriented[1]) {
+        //             // match is found: place into PLACEMENT_STRUCT and remove from EDGE_TILES
+        //             PLACEMENT_STRUCT[`${n}x1`] = {tile_number: key, transform_index: transform_index, tile_edges_oriented: TILE_EDGES[key]};
+        //             EDGE_TILES.splice(EDGE_TILES.indexOf(key),1);
+        //             break EDGE_TILES_loop;
+        //         }
+        //         TILE_EDGES[key] = transformTile(TILE_EDGES[key], transform_index);
+        //     }
+        // }
+    }
+
+
     // generalize the above, and iterate for 10 tiles.
     //   also use for going down from UL_tile_number...
 
@@ -159,12 +237,14 @@ var CORNER_TILES = findSituatedTilesByEdgeFreq(6);
 var EDGE_TILES = findSituatedTilesByEdgeFreq(7);
 var INTERIOR_TILES = Object.keys(TILE_EDGES).filter(function(x) { return CORNER_TILES.indexOf(x) < 0 }).filter(function(x) { return EDGE_TILES.indexOf(x) < 0 });
 
-placeCornerTiles();
+placeCornerAndEdgeTiles();
 //hoorah, first tile laid down
 console.log(JSON.stringify(PLACEMENT_STRUCT));
 
-// findEdgeCount("c");
-
+console.log(`CORNER_TILES.length: ${CORNER_TILES.length}`);
+console.log(`EDGE_TILES.length: ${EDGE_TILES.length}`);
+console.log(`INTERIOR_TILES.length: ${INTERIOR_TILES.length}`);
+console.log(`--> PLACEMENT_STRUCT.length: ${Object.keys(PLACEMENT_STRUCT).length}`);
 
 // node problem2.js
 
