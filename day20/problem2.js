@@ -1,19 +1,17 @@
 var fs = require('fs');
 
-var RAW_TILES = {}
 const ingestTiles = filename => {
-    RAW_TILES = {};
+    var RAW_TILES = {};
     var raw_tiles_arr = fs.readFileSync(filename).toString().split("\n\n").map((x) => x.split("\n"));
     for (raw_tile of raw_tiles_arr) {
         var tile_number = parseInt(raw_tile.shift().replace(":","").replace("Tile ",""));
         RAW_TILES[tile_number] = raw_tile.map((x) => x.split(""));
     }
+    return RAW_TILES;
 }
 
-var EDGE_COUNTS = {};
-var TILE_EDGES = {};
 function countUniqueEdges() {
-    EDGE_COUNTS = {};
+    var EDGE_COUNTS = {}; var TILE_EDGES = {};
     for (key of Object.keys(RAW_TILES)) {
         var top = RAW_TILES[key][0].join("");
         var bottom = RAW_TILES[key][9].join("");
@@ -44,9 +42,11 @@ function countUniqueEdges() {
         }
     }
     console.log(`edge use freq: ${JSON.stringify(counts)}`);
+
+    return [EDGE_COUNTS,TILE_EDGES];
 }
 
-function findSituatedTilesByEdgeFreq(edge_freq_count) {
+function findSituatedTilesByEdgeFreq(edge_freq_count, EDGE_COUNTS, TILE_EDGES) {
     collect_array = [];
     for (key of Object.keys(TILE_EDGES)) {
         var edge_metric = 0;
@@ -111,8 +111,7 @@ function findEdgeCount(edge_string) {
     console.error("Invalid Edge given to findEdgeCount()"); return null;
 }
 
-var PLACEMENT_STRUCT = {}; // will contain tile number, and rotation operation
-function placeCornerAndEdgeTiles() {
+function placeCornerAndEdgeTiles(PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES) {
     // First corner tile, doesn't matter which one, but rotate to get in upper left
     var UL_tile_number = CORNER_TILES.shift();
     var transform_index = 0;
@@ -223,28 +222,32 @@ function placeCornerAndEdgeTiles() {
         }
         TILE_EDGES[LR_tile_number] = transformTile(TILE_EDGES[LR_tile_number], transform_index);
     }
+
+    return [PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES];
 }
 
 // ingestTiles("example_input.txt");
-ingestTiles("actual_input.txt"); // 144 raw tiles
-console.log(`RAW_TILES: ${Object.keys(RAW_TILES).length}`);
+var RAW_TILES = ingestTiles("actual_input.txt"); // 144 raw tiles
+console.log(`RAW_TILES.length: ${Object.keys(RAW_TILES).length}`);
 
-countUniqueEdges(); // TILE_EDGES[tile_nmbr] = [top,bottom,left,right];
-var CORNER_TILES = findSituatedTilesByEdgeFreq(6);
-var EDGE_TILES = findSituatedTilesByEdgeFreq(7);
+var [EDGE_COUNTS, TILE_EDGES] = countUniqueEdges(); 
+// TILE_EDGES[tile_nmbr] = [top string,bottom,left,right]; EDGE_COUNTS are frequency up to order/reverse
+var CORNER_TILES = findSituatedTilesByEdgeFreq(6, EDGE_COUNTS, TILE_EDGES);
+var EDGE_TILES = findSituatedTilesByEdgeFreq(7, EDGE_COUNTS, TILE_EDGES);
+// (below is set operation: ALL tiles minus (CORNER_TILES + EDGE_TILES))
 var INTERIOR_TILES = Object.keys(TILE_EDGES).filter(function(x) { return CORNER_TILES.indexOf(x) < 0 }).filter(function(x) { return EDGE_TILES.indexOf(x) < 0 });
+var PLACEMENT_STRUCT = {}; // keyed i.e. 1x4 for row1col4, will contain tile and transform info
 
-placeCornerAndEdgeTiles();
+// At this point, tiles are segmented into 3 buckets: CORNER_TILES, EDGE_TILES, INTERIOR_TILES
+//  the place*() functions will iterate/tranform tiles to place them into the PLACEMENT_STRUCT
+//  while removing them from the respective bucket
+[PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES]    = placeCornerAndEdgeTiles(PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES);
+// [PLACEMENT_STRUCT, INTERIOR_TILES]              = placeInteriorTiles(PLACEMENT_STRUCT, INTERIOR_TILES);
 console.log(`PLACEMENT_STRUCT-->   ${JSON.stringify(PLACEMENT_STRUCT)}`);
-
 console.log(`CORNER_TILES.length: ${CORNER_TILES.length}`);
 console.log(`EDGE_TILES.length: ${EDGE_TILES.length}`);
 console.log(`INTERIOR_TILES.length: ${INTERIOR_TILES.length}`);
 console.log(`--> PLACEMENT_STRUCT.length: ${Object.keys(PLACEMENT_STRUCT).length}`);
-
-// TODO, fix the inputs/outputs to make it sensical, [a,b] = x();
-// TODO, narrate so I can follow
-// TODO, next is INTERIOR....
 
 // node problem2.js
 
