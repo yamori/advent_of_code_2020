@@ -111,7 +111,7 @@ function findEdgeCount(edge_string) {
     console.error("Invalid Edge given to findEdgeCount()"); return null;
 }
 
-function placeCornerAndEdgeTiles(PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES) {
+function placeCornerAndEdgeTiles(PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES, TILE_EDGES) {
     // First corner tile, doesn't matter which one, but rotate to get in upper left
     var UL_tile_number = CORNER_TILES.shift();
     var transform_index = 0;
@@ -226,6 +226,28 @@ function placeCornerAndEdgeTiles(PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES) {
     return [PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES];
 }
 
+function placeInteriorTiles(PLACEMENT_STRUCT, INTERIOR_TILES, TILE_EDGES) {
+
+    for (var col = 2; col<12; col++) {
+        for (var row = 2; row<12; row++) {
+            position_loop:
+            for (key of INTERIOR_TILES) { // Iterate over all EDGE_TILES
+                for (var transform_index = 1; transform_index<TRANSFORM_SEQ.length; transform_index++) { // iterate through the TRANSFORM_SEQ
+                    if (TILE_EDGES[key][2]==PLACEMENT_STRUCT[`${row}x${col-1}`].tile_edges_oriented[3] 
+                        && TILE_EDGES[key][0]==PLACEMENT_STRUCT[`${row-1}x${col}`].tile_edges_oriented[1]) {
+                        PLACEMENT_STRUCT[`${row}x${col}`] = {tile_number: key, transform_index: transform_index, tile_edges_oriented: TILE_EDGES[key]};
+                        INTERIOR_TILES.splice(INTERIOR_TILES.indexOf(key),1);
+                        break position_loop;
+                    }
+                    TILE_EDGES[key] = transformTile(TILE_EDGES[key], transform_index);
+                }
+            }
+        }
+    }
+
+    return [PLACEMENT_STRUCT, INTERIOR_TILES];
+}
+
 // ingestTiles("example_input.txt");
 var RAW_TILES = ingestTiles("actual_input.txt"); // 144 raw tiles
 console.log(`RAW_TILES.length: ${Object.keys(RAW_TILES).length}`);
@@ -236,13 +258,17 @@ var CORNER_TILES = findSituatedTilesByEdgeFreq(6, EDGE_COUNTS, TILE_EDGES);
 var EDGE_TILES = findSituatedTilesByEdgeFreq(7, EDGE_COUNTS, TILE_EDGES);
 // (below is set operation: ALL tiles minus (CORNER_TILES + EDGE_TILES))
 var INTERIOR_TILES = Object.keys(TILE_EDGES).filter(function(x) { return CORNER_TILES.indexOf(x) < 0 }).filter(function(x) { return EDGE_TILES.indexOf(x) < 0 });
-var PLACEMENT_STRUCT = {}; // keyed i.e. 1x4 for row1col4, will contain tile and transform info
+var PLACEMENT_STRUCT = {}; // keyed i.e. 1x4 for row1col4 (y,x), will contain tile and transform info
+
+var cp_CORNER_TILES = JSON.parse(JSON.stringify(CORNER_TILES));
+var cp_EDGE_TILES = JSON.parse(JSON.stringify(EDGE_TILES));
+var cp_INTERIOR_TILES = JSON.parse(JSON.stringify(INTERIOR_TILES));
 
 // At this point, tiles are segmented into 3 buckets: CORNER_TILES, EDGE_TILES, INTERIOR_TILES
 //  the place*() functions will iterate/tranform tiles to place them into the PLACEMENT_STRUCT
 //  while removing them from the respective bucket
-[PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES]    = placeCornerAndEdgeTiles(PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES);
-// [PLACEMENT_STRUCT, INTERIOR_TILES]              = placeInteriorTiles(PLACEMENT_STRUCT, INTERIOR_TILES);
+[PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES]    = placeCornerAndEdgeTiles(PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES, TILE_EDGES);
+[PLACEMENT_STRUCT, INTERIOR_TILES]              = placeInteriorTiles(PLACEMENT_STRUCT, INTERIOR_TILES, TILE_EDGES);
 console.log(`PLACEMENT_STRUCT-->   ${JSON.stringify(PLACEMENT_STRUCT)}`);
 console.log(`CORNER_TILES.length: ${CORNER_TILES.length}`);
 console.log(`EDGE_TILES.length: ${EDGE_TILES.length}`);
