@@ -10,7 +10,7 @@ const ingestTiles = filename => {
     return RAW_TILES;
 }
 
-function countUniqueEdges() {
+function countUniqueEdges(RAW_TILES) {
     var EDGE_COUNTS = {}; var TILE_EDGES = {};
     for (key of Object.keys(RAW_TILES)) {
         var top = RAW_TILES[key][0].join("");
@@ -89,7 +89,7 @@ function flipTileEdgesHorizontally(tile) {
 }
 
 var TRANSFORM_SEQ = "0rvhvhrvhvhrvhvhrvhvh"; // full cycle
-function transformTile(tile_edge, transform_index) {
+function transformTileEdges(tile_edge, transform_index) {
     switch(TRANSFORM_SEQ[transform_index]) {
         case "0":
             return tile_edge;
@@ -100,7 +100,7 @@ function transformTile(tile_edge, transform_index) {
         case "h":
             return flipTileEdgesHorizontally(tile_edge);
         default:
-            console.error("Incorrect params to transformTile()");
+            console.error("Incorrect params to transformTileEdges()");
     }
 }
 
@@ -117,9 +117,9 @@ function placeCornerAndEdgeTiles(PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES, TIL
     var transform_index = 0;
     while ((findEdgeCount(TILE_EDGES[UL_tile_number][0]) + findEdgeCount(TILE_EDGES[UL_tile_number][2])) != 2) {
         transform_index++;
-        TILE_EDGES[UL_tile_number] = transformTile(TILE_EDGES[UL_tile_number],transform_index);
+        TILE_EDGES[UL_tile_number] = transformTileEdges(TILE_EDGES[UL_tile_number],transform_index);
     }
-    PLACEMENT_STRUCT["1x1"] = {tile_number: UL_tile_number, transform_index: transform_index, tile_edges_oriented: TILE_EDGES[UL_tile_number]};
+    PLACEMENT_STRUCT["1x1"] = {tile_number: UL_tile_number, transform_index: transform_index+1, tile_edges_oriented: TILE_EDGES[UL_tile_number]};
 
     // from UL_tile_number (exclusive), right+down to corner (exclusive)
     for (var n=2; n<12; n++) {
@@ -132,7 +132,7 @@ function placeCornerAndEdgeTiles(PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES, TIL
                     EDGE_TILES.splice(EDGE_TILES.indexOf(key),1);
                     break EDGE_TILES_loop;
                 }
-                TILE_EDGES[key] = transformTile(TILE_EDGES[key], transform_index);
+                TILE_EDGES[key] = transformTileEdges(TILE_EDGES[key], transform_index);
             }
         }
 
@@ -145,7 +145,7 @@ function placeCornerAndEdgeTiles(PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES, TIL
                     EDGE_TILES.splice(EDGE_TILES.indexOf(key),1);
                     break EDGE_TILES_loop;
                 }
-                TILE_EDGES[key] = transformTile(TILE_EDGES[key], transform_index);
+                TILE_EDGES[key] = transformTileEdges(TILE_EDGES[key], transform_index);
             }
         }
     }
@@ -161,7 +161,7 @@ function placeCornerAndEdgeTiles(PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES, TIL
                 CORNER_TILES.splice(CORNER_TILES.indexOf(key_CORNER_TILES),1);
                 break CORNER_TILES_loop;
             }
-            TILE_EDGES[key_CORNER_TILES] = transformTile(TILE_EDGES[key_CORNER_TILES], transform_index);
+            TILE_EDGES[key_CORNER_TILES] = transformTileEdges(TILE_EDGES[key_CORNER_TILES], transform_index);
         }
     }
 
@@ -176,7 +176,7 @@ function placeCornerAndEdgeTiles(PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES, TIL
                 CORNER_TILES.splice(CORNER_TILES.indexOf(key_CORNER_TILES),1);
                 break CORNER_TILES_loop;
             }
-            TILE_EDGES[key_CORNER_TILES] = transformTile(TILE_EDGES[key_CORNER_TILES], transform_index);
+            TILE_EDGES[key_CORNER_TILES] = transformTileEdges(TILE_EDGES[key_CORNER_TILES], transform_index);
         }
     }
     
@@ -192,7 +192,7 @@ function placeCornerAndEdgeTiles(PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES, TIL
                     EDGE_TILES.splice(EDGE_TILES.indexOf(key),1);
                     break EDGE_TILES_loop;
                 }
-                TILE_EDGES[key] = transformTile(TILE_EDGES[key], transform_index);
+                TILE_EDGES[key] = transformTileEdges(TILE_EDGES[key], transform_index);
             }
         }
 
@@ -205,29 +205,28 @@ function placeCornerAndEdgeTiles(PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES, TIL
                     EDGE_TILES.splice(EDGE_TILES.indexOf(key),1);
                     break EDGE_TILES_loop;
                 }
-                TILE_EDGES[key] = transformTile(TILE_EDGES[key], transform_index);
+                TILE_EDGES[key] = transformTileEdges(TILE_EDGES[key], transform_index);
             }
         }
     }
 
     // Only one CORNER_TILES left, but need to find transform
     var LR_tile_number = CORNER_TILES.shift();
-    CORNER_TILES_loop:
+    LR_CORNER_TILES_loop:
     for (var transform_index = 1; transform_index<TRANSFORM_SEQ.length; transform_index++) { // iterate through the TRANSFORM_SEQ
         if (TILE_EDGES[LR_tile_number][0]==PLACEMENT_STRUCT[`11x12`].tile_edges_oriented[1] 
             && TILE_EDGES[LR_tile_number][2]==PLACEMENT_STRUCT[`12x11`].tile_edges_oriented[3]) {
             // match is found: place into PLACEMENT_STRUCT
-            PLACEMENT_STRUCT[`12x12`] = {tile_number: key, transform_index: transform_index, tile_edges_oriented: TILE_EDGES[LR_tile_number]};
-            break CORNER_TILES_loop;
+            PLACEMENT_STRUCT[`12x12`] = {tile_number: LR_tile_number, transform_index: transform_index, tile_edges_oriented: TILE_EDGES[LR_tile_number]};
+            break LR_CORNER_TILES_loop;
         }
-        TILE_EDGES[LR_tile_number] = transformTile(TILE_EDGES[LR_tile_number], transform_index);
+        TILE_EDGES[LR_tile_number] = transformTileEdges(TILE_EDGES[LR_tile_number], transform_index);
     }
 
     return [PLACEMENT_STRUCT, CORNER_TILES, EDGE_TILES];
 }
 
 function placeInteriorTiles(PLACEMENT_STRUCT, INTERIOR_TILES, TILE_EDGES) {
-
     for (var col = 2; col<12; col++) {
         for (var row = 2; row<12; row++) {
             position_loop:
@@ -239,30 +238,95 @@ function placeInteriorTiles(PLACEMENT_STRUCT, INTERIOR_TILES, TILE_EDGES) {
                         INTERIOR_TILES.splice(INTERIOR_TILES.indexOf(key),1);
                         break position_loop;
                     }
-                    TILE_EDGES[key] = transformTile(TILE_EDGES[key], transform_index);
+                    TILE_EDGES[key] = transformTileEdges(TILE_EDGES[key], transform_index);
                 }
             }
         }
     }
-
     return [PLACEMENT_STRUCT, INTERIOR_TILES];
+}
+
+function transformTile(matrix, transform_index) { // "0rvhvhrvhvhrvhvhrvhvh"
+    var N = matrix.length - 1;
+    var result = null;
+    if (TRANSFORM_SEQ[transform_index] == "0") {
+        return matrix;
+    } else if (TRANSFORM_SEQ[transform_index] == "r") {
+        result = matrix.map((row, i) => row.map((val, j) => matrix[N - j][i]));
+    } else if (TRANSFORM_SEQ[transform_index] == "v") {
+        result = matrix.map((row, i) => row.map((val, j) => matrix[N - i][j]));
+    } else if (TRANSFORM_SEQ[transform_index] == "h") {
+        result = matrix.map((row, i) => row.map((val, j) => matrix[i][N - j]));
+    }
+    matrix.length = 0;
+    matrix.push(...result);
+    return matrix;
+}
+
+function reconstructImg(RECONSTRUCTED_IMG, PLACEMENT_STRUCT, RAW_TILES, exclude_edges = false) {
+    // RECONSTRUCTED_IMG to be filled in
+    var width = exclude_edges ? 8 : 10;
+    var offset = exclude_edges ? 1 : 0;
+    for (var col = 1; col<=12; col++) {
+        for (var row = 1; row<=12; row++) {
+            var tile_content = JSON.parse(JSON.stringify(RAW_TILES[PLACEMENT_STRUCT[`${row}x${col}`].tile_number]));
+            for (var transform_index = 0; transform_index < PLACEMENT_STRUCT[`${row}x${col}`].transform_index; transform_index++) {
+                tile_content = transformTile(tile_content, transform_index);
+            }
+            for (var col1 = 0; col1<10; col1++) {
+                if (exclude_edges && (col1 == 0 || col1 == 9)) { continue; }
+                for (var row1 = 0; row1<10; row1++) {
+                    if (exclude_edges && (row1 == 0 || row1 == 9)) { continue; }
+                    RECONSTRUCTED_IMG[(row-1)*width + (row1-offset)][(col-1)*width + (col1-offset)] = tile_content[row1][col1];
+                }
+            }
+        }
+    }
+    return RECONSTRUCTED_IMG;
+}
+
+function reconstructImgNoEdges(RECONSTRUCTED_IMG, PLACEMENT_STRUCT, RAW_TILES) {
+    // RECONSTRUCTED_IMG to be filled in
+    for (var col = 1; col<=12; col++) {
+        for (var row = 1; row<=12; row++) {
+            var tile_content = RAW_TILES[PLACEMENT_STRUCT[`${row}x${col}`].tile_number];
+            for (var transform_index = 0; transform_index < PLACEMENT_STRUCT[`${row}x${col}`].transform_index; transform_index++) {
+                tile_content = transformTile(tile_content, transform_index);
+            }
+            for (var col1 = 1; col1<9; col1++) {
+                for (var row1 = 1; row1<9; row1++) {
+                    RECONSTRUCTED_IMG[(row-1)*8 + (row1-1)][(col-1)*8 + (col1-1)] = tile_content[row1][col1];
+                }
+            }
+        }
+    }
+    return RECONSTRUCTED_IMG;
+}
+
+function displayImg(RECONSTRUCTED_IMG, edges_removed = false) {
+    var tile_width = edges_removed ? 8 : 10;
+    for (var col = 0; col<RECONSTRUCTED_IMG.length; col++) {
+        if ((col%tile_width)==0) { console.log(); }
+        var col_str = "";
+        for (var row = 0; row<RECONSTRUCTED_IMG.length; row++) { 
+            if ((row%tile_width)==0) { col_str += " "; }
+            col_str += RECONSTRUCTED_IMG[row][col];
+        }
+        console.log(col_str);
+    }
 }
 
 // ingestTiles("example_input.txt");
 var RAW_TILES = ingestTiles("actual_input.txt"); // 144 raw tiles
 console.log(`RAW_TILES.length: ${Object.keys(RAW_TILES).length}`);
 
-var [EDGE_COUNTS, TILE_EDGES] = countUniqueEdges(); 
+var [EDGE_COUNTS, TILE_EDGES] = countUniqueEdges(RAW_TILES); 
 // TILE_EDGES[tile_nmbr] = [top string,bottom,left,right]; EDGE_COUNTS are frequency up to order/reverse
 var CORNER_TILES = findSituatedTilesByEdgeFreq(6, EDGE_COUNTS, TILE_EDGES);
 var EDGE_TILES = findSituatedTilesByEdgeFreq(7, EDGE_COUNTS, TILE_EDGES);
 // (below is set operation: ALL tiles minus (CORNER_TILES + EDGE_TILES))
 var INTERIOR_TILES = Object.keys(TILE_EDGES).filter(function(x) { return CORNER_TILES.indexOf(x) < 0 }).filter(function(x) { return EDGE_TILES.indexOf(x) < 0 });
 var PLACEMENT_STRUCT = {}; // keyed i.e. 1x4 for row1col4 (y,x), will contain tile and transform info
-
-var cp_CORNER_TILES = JSON.parse(JSON.stringify(CORNER_TILES));
-var cp_EDGE_TILES = JSON.parse(JSON.stringify(EDGE_TILES));
-var cp_INTERIOR_TILES = JSON.parse(JSON.stringify(INTERIOR_TILES));
 
 // At this point, tiles are segmented into 3 buckets: CORNER_TILES, EDGE_TILES, INTERIOR_TILES
 //  the place*() functions will iterate/tranform tiles to place them into the PLACEMENT_STRUCT
@@ -274,6 +338,16 @@ console.log(`CORNER_TILES.length: ${CORNER_TILES.length}`);
 console.log(`EDGE_TILES.length: ${EDGE_TILES.length}`);
 console.log(`INTERIOR_TILES.length: ${INTERIOR_TILES.length}`);
 console.log(`--> PLACEMENT_STRUCT.length: ${Object.keys(PLACEMENT_STRUCT).length}`);
+
+// Create the entire map using tile content, at this point tiles have been positioned (via edges)
+var RECONSTRUCTED_IMG = [...Array(120)].map(e => Array(120));
+RECONSTRUCTED_IMG = reconstructImg(RECONSTRUCTED_IMG, PLACEMENT_STRUCT, RAW_TILES);
+displayImg(RECONSTRUCTED_IMG); // visual verification
+
+var RECONSTRUCTED_IMG_NO_EDGES = [...Array(12*8)].map(e => Array(12*8));
+RECONSTRUCTED_IMG_NO_EDGES = reconstructImg(RECONSTRUCTED_IMG_NO_EDGES, PLACEMENT_STRUCT, RAW_TILES, true);
+displayImg(RECONSTRUCTED_IMG_NO_EDGES, true); 
+
 
 // node problem2.js
 
@@ -298,4 +372,5 @@ console.log(`--> PLACEMENT_STRUCT.length: ${Object.keys(PLACEMENT_STRUCT).length
  // console.log(JSON.stringify(rotateTileEdges90Deg(["xxo","xoo","xox","oxo"])));
 //  console.log(JSON.stringify(flipTileEdgesHorizontally(["xxo","xoo","xox","oxo"])));
 // console.log(JSON.stringify(rotateTileEdges90Deg(["xxo","xoo","xox","oxo"])));
-// console.log(JSON.stringify(transformTile(["xxo","xoo","xox","oxo"],1)));
+// console.log(JSON.stringify(transformTileEdges(["xxo","xoo","xox","oxo"],1)));
+
